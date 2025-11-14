@@ -1,5 +1,6 @@
 from typing import Union, Tuple, Optional
 from uuid import UUID
+from exceptions.repositories import ObjNotFount
 from interfaces.mapper import BaseMapperDB
 
 class MemoryMapperDB(BaseMapperDB):
@@ -17,14 +18,14 @@ class MemoryMapperDB(BaseMapperDB):
         source_id =self._storage.get(tg_id)
         if source_id is not None:
             return tg_id, source_id
-        return None
+        raise ObjNotFount
 
     def get_by_source_id(self, source_id: Union[int, UUID]) -> Optional[Tuple[Union[int, UUID], Union[int, UUID]]]:
         """Get the Telegram ID by source ID."""
         for tg_id, src_id in self._storage.items():
             if src_id == source_id:
                 return tg_id, src_id
-        return None
+        raise ObjNotFount
 
     def set(self, tg_id: Union[int, UUID], source_id: Union[int, UUID]) -> Tuple[Union[int, UUID], Union[int, UUID]]:
         """Set a mapping between Telegram ID and source ID."""
@@ -37,4 +38,4 @@ class MemoryMapperDB(BaseMapperDB):
             if src_id == source_id:
                 del self._storage[tg_id]
                 return tg_id, src_id
-        return None
+        raise ObjNotFount

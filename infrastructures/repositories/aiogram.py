@@ -39,7 +39,7 @@ class AiogramMemoryRepo(BaseTgRepo):
         self._storage[msg_object.message_id] = msg_object
 
     def load(self, id):
-        return self._storage[id]
+        return self._storage.get(id)
     
     def load_all(self) -> List:
         return list(self._storage.values())

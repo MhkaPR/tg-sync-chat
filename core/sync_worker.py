@@ -39,10 +39,11 @@ class SyncWorker:
                 "sync_data": obj["sync_data"]
             }
             tg_obj = await self.tg_repo.create(tg_obj)
-            await self.mapper.save_mapping(obj["id"], tg_id=tg_obj["message_id"])
+            await self.mapper.save_mapping(source_id=obj["id"], tg_id=tg_obj["message_id"])
 
     async def sync_updatables(self) -> None:
         for obj in self.updatables:
+            print(obj)
             tg_obj = {
                 "id":await self.mapper.get_telegram_id(obj["id"]),
                 "sync_data": obj["sync_data"]
@@ -51,4 +52,4 @@ class SyncWorker:
 
     async def sync_deletables(self) -> None:
         for tg_obj in self.deletables:
-           await self.tg_repo.delete(tg_obj["message_id"])
+           await self.tg_repo.delete(tg_obj.message_id)

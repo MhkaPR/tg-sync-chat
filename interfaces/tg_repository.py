@@ -6,25 +6,25 @@ import uuid
 class BaseTgRepo(ABC):
 
     @abstractmethod
-    def create(data: dict) -> dict:
+    def create(self, data: dict) -> dict:
         pass
 
     @abstractmethod
-    def update(data: dict) -> dict:
+    def update(self, data: dict) -> dict:
         pass
 
     @abstractmethod
-    def delete(tg_id: int) -> None:
+    def delete(self, tg_id: int) -> None:
         pass
 
     @abstractmethod
-    def store(msg_object):
+    def store(self, msg_object):
         pass
 
     @abstractmethod
-    def load(id):
+    def load(self, id):
         pass
 
     @abstractmethod
-    def load_all():
+    def load_all(self, ):
         pass
