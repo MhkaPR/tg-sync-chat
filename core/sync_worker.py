@@ -14,7 +14,7 @@ class SyncWorker:
         self.updatables: List[dict] = []
         self.deletables: List[dict] = []
 
-    async def load_available_changes(
+    def load_available_changes(
             self,
             creatables: List[dict],
             updatables: List[dict],
@@ -25,28 +25,28 @@ class SyncWorker:
         self.updatables = updatables
         self.deletables = deletables
 
-    async def synchronize(self, also_deletables: bool = False):
-        await self.sync_creatables()
-        await self.sync_updatables()
+    def synchronize(self, also_deletables: bool = False):
+        self.sync_creatables()
+        self.sync_updatables()
         if also_deletables:
-            await self.sync_deletables()
+            self.sync_deletables()
 
-    async def sync_creatables(self) -> None:
+    def sync_creatables(self) -> None:
         for obj in self.creatables:
             tg_obj = {
                 "sync_data": obj["sync_data"]
             }
-            tg_obj = await self.tg_repo.create(tg_obj)
-            await self.mapper.save_mapping(obj["id"], tg_id=tg_obj["id"])
+            tg_obj = self.tg_repo.create(tg_obj)
+            self.mapper.save_mapping(obj["id"], tg_id=tg_obj["message_id"])
 
-    async def sync_updatables(self) -> None:
+    def sync_updatables(self) -> None:
         for obj in self.updatables:
             tg_obj = {
                 "id": self.mapper.get_telegram_id(obj["id"]),
                 "sync_data": obj["sync_data"]
             }
-            await self.tg_repo.update(tg_obj)
+            self.tg_repo.update(tg_obj)
 
-    async def sync_deletables(self) -> None:
+    def sync_deletables(self) -> None:
         for tg_obj in self.deletables:
-            await self.tg_repo.delete(tg_obj["id"])
+            self.tg_repo.delete(tg_obj["id"])
