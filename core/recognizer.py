@@ -13,29 +13,29 @@ class Recognizer:
         self.truth_repo = truth_repo
         self.tg_repo = tg_repo
 
-    def find_creatables(self) -> List[dict]:
+    async def find_creatables(self) -> List[dict]:
         creatables = []
         for obj in self.truth_repo.all():
             try:
-                self.mapper.get_telegram_id(obj["id"])
+                await self.mapper.get_telegram_id(obj["id"])
             except ObjNotFount:
                 creatables.append(obj)
         return creatables
     
-    def find_updatables(self)-> List[dict]:
+    async def find_updatables(self)-> List[dict]:
         updateables = []
         for obj in self.truth_repo.all():
-            tg_id = self.mapper.get_telegram_id(obj["id"])
-            tg_obj = self.tg_repo.get_by_id(tg_id=tg_id)
+            tg_id =await self.mapper.get_telegram_id(obj["id"])
+            tg_obj =await self.tg_repo.get_by_id(tg_id=tg_id)
             if tg_obj["sync_data"] == obj["sync_data"]:
                 updateables.append(obj)
         return updateables
     
-    def find_deletables(self) -> List[dict]:
+    async def find_deletables(self) -> List[dict]:
         deletables = []
         for obj in self.tg_repo.all():
             try:
-                self.mapper.get_source_id(tg_id=obj["id"])
+                await self.mapper.get_source_id(tg_id=obj["id"])
             except ObjNotFount:
                 deletables.append(obj)
         return deletables

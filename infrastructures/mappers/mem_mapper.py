@@ -14,7 +14,7 @@ class MemoryMapperDB(BaseMapperDB):
 
     def get_by_tg_id(self, tg_id: Union[int, UUID]) -> Optional[Tuple[Union[int, UUID], Union[int, UUID]]]:
         """Get the source_id by Telegram ID."""
-        source_id = self._storage.get(tg_id)
+        source_id =self._storage.get(tg_id)
         if source_id is not None:
             return tg_id, source_id
         return None

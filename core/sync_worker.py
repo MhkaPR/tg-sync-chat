@@ -25,28 +25,30 @@ class SyncWorker:
         self.updatables = updatables
         self.deletables = deletables
 
-    def synchronize(self, also_deletables: bool = False):
-        self.sync_creatables()
-        self.sync_updatables()
+    async def synchronize(self, also_deletables: bool = False):
+        s_creatables = self.sync_creatables()
+        s_updatables = self.sync_updatables()
         if also_deletables:
-            self.sync_deletables()
+            await self.sync_deletables()
+        await s_creatables
+        await s_updatables
 
-    def sync_creatables(self) -> None:
+    async def sync_creatables(self) -> None:
         for obj in self.creatables:
             tg_obj = {
                 "sync_data": obj["sync_data"]
             }
-            tg_obj = self.tg_repo.create(tg_obj)
-            self.mapper.save_mapping(obj["id"], tg_id=tg_obj["message_id"])
+            tg_obj = await self.tg_repo.create(tg_obj)
+            await self.mapper.save_mapping(obj["id"], tg_id=tg_obj["message_id"])
 
-    def sync_updatables(self) -> None:
+    async def sync_updatables(self) -> None:
         for obj in self.updatables:
             tg_obj = {
-                "id": self.mapper.get_telegram_id(obj["id"]),
+                "id":await self.mapper.get_telegram_id(obj["id"]),
                 "sync_data": obj["sync_data"]
             }
-            self.tg_repo.update(tg_obj)
+            await self.tg_repo.update(tg_obj)
 
-    def sync_deletables(self) -> None:
+    async def sync_deletables(self) -> None:
         for tg_obj in self.deletables:
-            self.tg_repo.delete(tg_obj["id"])
+           await self.tg_repo.delete(tg_obj["id"])
