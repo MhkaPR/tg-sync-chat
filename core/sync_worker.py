@@ -21,9 +21,9 @@ class SyncWorker:
             deletables: List[dict]
         ) -> None:
 
-        self.creatables = creatables
-        self.updatables = updatables
-        self.deletables = deletables
+        self.creatables = creatables.copy()
+        self.updatables = updatables.copy()
+        self.deletables = deletables.copy()
 
     async def synchronize(self, also_deletables: bool = False):
         s_creatables = self.sync_creatables()
@@ -51,4 +51,4 @@ class SyncWorker:
 
     async def sync_deletables(self) -> None:
         for tg_obj in self.deletables:
-           await self.tg_repo.delete(tg_obj["id"])
+           await self.tg_repo.delete(tg_obj["message_id"])
