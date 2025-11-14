@@ -1,0 +1,2 @@
+class ObjNotFount(Exception):
+    pass
