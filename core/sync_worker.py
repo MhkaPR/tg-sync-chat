@@ -10,11 +10,11 @@ class SyncWorker:
         self.truth_repo  = truth_repo
         self.tg_repo = tg_repo
 
-        self.creatables = []
-        self.updatables = []
-        self.deletables = []
+        self.creatables: List[dict] = []
+        self.updatables: List[dict] = []
+        self.deletables: List[dict] = []
 
-    def load_available_changes(
+    async def load_available_changes(
             self,
             creatables: List[dict],
             updatables: List[dict],
@@ -22,34 +22,31 @@ class SyncWorker:
         ) -> None:
 
         self.creatables = creatables
-        self.updatables, updatables
+        self.updatables = updatables
         self.deletables = deletables
 
-    def syncronize(self, also_deletables: bool = False):
-        self.sync_creatbles()
-        self.sync_updatables()
+    async def synchronize(self, also_deletables: bool = False):
+        await self.sync_creatables()
+        await self.sync_updatables()
         if also_deletables:
-            self.sync_deletables()
+            await self.sync_deletables()
 
-    def sync_creatbles(self) -> None:
+    async def sync_creatables(self) -> None:
         for obj in self.creatables:
             tg_obj = {
                 "sync_data": obj["sync_data"]
             }
-            tg_obj = self.tg_repo.create(tg_obj)
-            self.mapper.save_mapping(obj["id"], tg_id=tg_obj["id"])
+            tg_obj = await self.tg_repo.create(tg_obj)
+            await self.mapper.save_mapping(obj["id"], tg_id=tg_obj["id"])
 
-    def sync_updatables(self) -> None:
+    async def sync_updatables(self) -> None:
         for obj in self.updatables:
             tg_obj = {
                 "id": self.mapper.get_telegram_id(obj["id"]),
                 "sync_data": obj["sync_data"]
             }
-            self.tg_repo.update(tg_obj)
+            await self.tg_repo.update(tg_obj)
 
-    def sync_deletables(self) -> None:
+    async def sync_deletables(self) -> None:
         for tg_obj in self.deletables:
-            self.tg_repo.delete(tg_obj["id"])
-
-
-        
+            await self.tg_repo.delete(tg_obj["id"])
