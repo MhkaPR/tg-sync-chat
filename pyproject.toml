@@ -1,0 +1,21 @@
+[project]
+name = "tg-sync-chat"
+version = "0.1.0"
+description = "Sync truth repo and Telegram data."
+authors = [
+    { name="Mohammed Hosein Kalateh Arabi" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    # add your runtime dependencies
+    "aiohttp",
+    "pytest",
+    "aiogram",
+]
+
+[build-system]
+requires = ["setuptools>=65", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
