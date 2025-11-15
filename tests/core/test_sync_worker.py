@@ -1,31 +1,56 @@
 import pytest
-import asyncio
 from uuid import uuid4
 from unittest.mock import AsyncMock
 from DTOs.repo_dtos import MessageDTO
-from core.sync_worker import SyncWorker, Mapper
-from infrastructures.repositories.aiogram import AiogramMemoryRepo
-from infrastructures.repositories.mem_truth_repo import MemoryTruthRepo
-from infrastructures.mappers.mem_mapper import MemoryMapperDB
+from core.mapper import Mapper
+from core.sync_worker import SyncWorker
 
 @pytest.mark.asyncio
-async def test_syncworker_synchronize():
-    truth_repo = MemoryTruthRepo
-    tg_repo = AiogramMemoryRepo(bot=AsyncMock(), channel_id=123)
-    mapper_db = MemoryMapperDB()
-    mapper = Mapper(mapper_db)
+async def test_syncworker_synchronize_creatables_updatables_deletables():
+    # Setup mocks
+    tg_repo = AsyncMock()
+    mapper = AsyncMock()
+    worker = SyncWorker(mapper=mapper, truth_repo=None, tg_repo=tg_repo)
 
-    worker = SyncWorker(mapper=mapper, truth_repo=truth_repo, tg_repo=tg_repo)
+    # Prepare test messages
+    msg1 = MessageDTO(id=uuid4(), message="CreateMe", extra_data={})
+    msg2 = MessageDTO(id=uuid4(), message="UpdateMe", extra_data={})
+    msg3 = MessageDTO(id=uuid4(), message="DeleteMe", extra_data={})
 
-    msg1 = truth_repo.create(MessageDTO(id=uuid4(), message="Hello", extra_data=None))
-    msg2 = truth_repo.create(MessageDTO(id=uuid4(), message="World", extra_data=None))
+    # Load available changes
+    worker.load_available_changes(
+        creatables=[msg1],
+        updatables=[msg2],
+        deletables=[msg3]
+    )
 
-    worker.load_available_changes(creatables=[{"id": msg1.id, "sync_data": msg1.message}],
-                                  updatables=[{"id": msg2.id, "sync_data": msg2.message}],
-                                  deletables=[])
+    # Run synchronize with deletables
+    await worker.synchronize(also_deletables=True)
 
-    await worker.synchronize()
-    # Check that tg_repo.create and update are called
-    assert hasattr(worker, "creatables")
-    assert len(worker.creatables) == 1
-    assert len(worker.updatables) == 1
+    # Check that tg_repo.create called for creatables
+    tg_repo.create.assert_called_with(MessageDTO(id=None, message=msg1.message, extra_data={}))
+    # Check that tg_repo.update called for updatables
+    tg_repo.update.assert_called_with(MessageDTO(id=await mapper.get_telegram_id(msg2.id), message=msg2.message, extra_data={}))
+    # Check that tg_repo.delete called for deletables
+    tg_repo.delete.assert_called_with(msg3.id)
+
+@pytest.mark.asyncio
+async def test_syncworker_sync_creatables_and_updatables():
+    # Minimal mocks to test individual methods
+    tg_repo = AsyncMock()
+    mapper = AsyncMock()
+    worker = SyncWorker(mapper=mapper, truth_repo=None, tg_repo=tg_repo)
+
+    msg1 = MessageDTO(id=uuid4(), message="Create", extra_data={})
+    msg2 = MessageDTO(id=uuid4(), message="Update", extra_data={})
+
+    worker.creatables = [msg1]
+    worker.updatables = [msg2]
+
+    await worker.sync_creatables()
+    await worker.sync_updatables()
+
+    # mapper.save_mapping called for creatables
+    mapper.save_mapping.assert_called()
+    # tg_repo.update called for updatables
+    tg_repo.update.assert_called()
