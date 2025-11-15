@@ -1,4 +1,4 @@
-from ctypes import Union
+from typing import Union
 from os import wait
 from typing import Dict, List, Optional
 import uuid
