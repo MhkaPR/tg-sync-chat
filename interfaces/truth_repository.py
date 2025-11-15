@@ -11,10 +11,6 @@ class BaseTruthRepo(ABC):
         pass
 
     @abstractmethod
-    def filter(**fields) -> List[MessageDTO]:
-        pass
-
-    @abstractmethod
     def all() -> List[MessageDTO]:
         pass
 
