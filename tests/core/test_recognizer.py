@@ -43,8 +43,14 @@ async def test_recognizer_creatables_updatables_deletables():
     tg_repo.store(tg_msg)
 
     # Mock mapper behavior
-    mapper.get_telegram_id = AsyncMock(side_effect=lambda x: 100 if x==msg1.id else  ObjNotFount)
-    mapper.get_source_id = AsyncMock(side_effect=ObjNotFount)
+    async def mock_get_telegram_id(source_id):
+        if source_id == msg1.id:
+            return 100
+        else:
+            raise ObjNotFount()
+        
+    mapper.get_telegram_id = AsyncMock(side_effect=mock_get_telegram_id)
+    mapper.get_source_id = AsyncMock(side_effect=lambda tg_id: (_ for _ in ()).throw(ObjNotFount()))
 
     recognizer = Recognizer(mapper, truth_repo, tg_repo)
 
