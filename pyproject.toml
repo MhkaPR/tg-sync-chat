@@ -1,6 +1,6 @@
 [project]
 name = "tg-sync-chat"
-version = "0.1.2"
+version = "0.1.4"
 description = "Sync truth repo and Telegram data."
 authors = [
     { name="Mohammed Hosein Kalateh Arabi" }
