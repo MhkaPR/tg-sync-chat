@@ -1,6 +1,6 @@
 [project]
 name = "tg-sync-chat"
-version = "0.1.0"
+version = "0.1.1"
 description = "Sync truth repo and Telegram data."
 authors = [
     { name="Mohammed Hosein Kalateh Arabi" }
@@ -10,6 +10,7 @@ dependencies = [
     # add your runtime dependencies
     "aiohttp",
     "pytest",
+    "pytest-asyncio",
     "aiogram",
 ]
 
