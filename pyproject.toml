@@ -1,6 +1,6 @@
 [project]
 name = "tg-sync-chat"
-version = "0.1.1"
+version = "0.1.2"
 description = "Sync truth repo and Telegram data."
 authors = [
     { name="Mohammed Hosein Kalateh Arabi" }
@@ -20,3 +20,4 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["."]
+exclude = ["tg_sync_chat.tests", "tg_sync_chat.tests.*"]
